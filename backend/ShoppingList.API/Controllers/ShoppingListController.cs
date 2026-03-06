@@ -1,82 +1,68 @@
 using Microsoft.AspNetCore.Mvc;
+using ShoppingList.ServiceContracts;
+using ShoppingList.ServiceContracts.DTO;
 
-namespace ShoppingList.Controllers
+namespace ShoppingList.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ShoppingListController : ControllerBase
 {
-    public class ShoppingListController : Controller
+    private readonly IGroceryService _service;
+
+    public ShoppingListController(IGroceryService service)
     {
-        // GET: ShoppingListController
-        public ActionResult Index()
-        {
-            return View();
-        }
+        _service = service;
+    }
 
-        // GET: ShoppingListController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
+    [HttpGet]
+    public async Task<ActionResult> Index()
+    {
+        var items = await _service.GetAllAsync();
 
-        // GET: ShoppingListController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
+        return Ok(items);
+    }
 
-        // POST: ShoppingListController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult> Details(int id)
+    {
+        var item = await _service.GetByIdAsync(id);
 
-        // GET: ShoppingListController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+        if (item == null)
+            return NotFound();
 
-        // POST: ShoppingListController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        return Ok(item);
+    }
 
-        // GET: ShoppingListController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+    [HttpPost]
+    public async Task<ActionResult> Create([FromBody] GroceryItemAddRequest request)
+    {
+        var item = await _service.AddAsync(request);
 
-        // POST: ShoppingListController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        return CreatedAtAction(nameof(Details), new { id = item.Id }, item);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult> Edit(int id, [FromBody] GroceryItemUpdateRequest request)
+    {
+        var item = await _service.UpdateAsync(request);
+
+        if (item == null)
+            return NotFound();
+
+        return Ok(item);
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        var item = await _service.GetByIdAsync(id);
+
+        if (item == null)
+            return NotFound();
+
+        await _service.DeleteAsync(id);
+
+        return NoContent();
     }
 }

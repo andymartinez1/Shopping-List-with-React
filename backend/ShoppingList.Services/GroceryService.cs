@@ -123,8 +123,9 @@ public class GroceryService : IGroceryService
         return new GroceryItem
         {
             Name = request.Name,
+            Quantity = request.Quantity,
             DateAdded = request.DateAdded,
-            IsPurchased = request.IsPurchased,
+            IsPurchased = request.IsPurchased
         };
     }
 
@@ -134,8 +135,9 @@ public class GroceryService : IGroceryService
         {
             Id = request.Id,
             Name = request.Name,
+            Quantity = request.Quantity,
             DateAdded = request.DateAdded,
-            IsPurchased = request.IsPurchased,
+            IsPurchased = request.IsPurchased
         };
     }
 
@@ -145,8 +147,9 @@ public class GroceryService : IGroceryService
         {
             Id = item.Id,
             Name = item.Name,
+            Quantity = item.Quantity,
             DateAdded = item.DateAdded,
-            IsPurchased = item.IsPurchased,
+            IsPurchased = item.IsPurchased
         };
     }
 }
