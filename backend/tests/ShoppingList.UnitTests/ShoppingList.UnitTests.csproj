@@ -19,11 +19,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../ShoppingList.Services/ShoppingList.Services.csproj" />
-    <ProjectReference Include="../ShoppingList.Data/ShoppingList.Data.csproj" />
-    <ProjectReference Include="../ShoppingList.Entities/ShoppingList.Entities.csproj" />
-    <ProjectReference Include="../ShoppingList.ServiceContracts/ShoppingList.ServiceContracts.csproj" />
-    <ProjectReference Include="..\ShoppingList.API\ShoppingList.API.csproj" />
+    <ProjectReference Include="../../src/ShoppingList.Services/ShoppingList.Services.csproj" />
+    <ProjectReference Include="../../src/ShoppingList.Data/ShoppingList.Data.csproj" />
+    <ProjectReference Include="../../src/ShoppingList.Entities/ShoppingList.Entities.csproj" />
+    <ProjectReference Include="../../src/ShoppingList.ServiceContracts/ShoppingList.ServiceContracts.csproj" />
+    <ProjectReference Include="../../src/ShoppingList.API\ShoppingList.API.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
