@@ -10,7 +10,7 @@ public interface IGroceryService
 
     public Task<GroceryItemResponse?> GetByIdAsync(int id);
 
-    public Task<GroceryItemResponse> UpdateAsync(GroceryItemUpdateRequest? updateRequest);
+    public Task<GroceryItemResponse?> UpdateAsync(GroceryItemUpdateRequest? updateRequest);
 
     public Task<bool> DeleteAsync(int id);
 }

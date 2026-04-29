@@ -37,6 +37,9 @@ public class ShoppingListController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] GroceryItemAddRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request?.Name))
+            return BadRequest("Name is required");
+
         var item = await _service.AddAsync(request);
 
         return CreatedAtAction(nameof(Details), new { id = item.Id }, item);
@@ -45,9 +48,12 @@ public class ShoppingListController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<ActionResult> Edit(int id, [FromBody] GroceryItemUpdateRequest request)
     {
+        if (id != request.Id)
+            return BadRequest("Route ID and body ID must match");
+
         var item = await _service.UpdateAsync(request);
 
-        if (item == null)
+        if (item is null)
             return NotFound();
 
         return Ok(item);

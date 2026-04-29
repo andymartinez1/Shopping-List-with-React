@@ -32,22 +32,24 @@ public class GroceryService : IGroceryService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency conflict while adding category.");
+            _logger.LogWarning(ex, "Concurrency conflict while adding grocery item.");
             return MapToGroceryResponse(groceryItem);
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database update failed while adding category.");
+            _logger.LogError(ex, "Database update failed while adding grocery item.");
             return MapToGroceryResponse(groceryItem);
         }
 
-        _logger.LogInformation("Product with ID: {id} added.", groceryItem.Id);
+        _logger.LogInformation("Grocery item with ID: {id} added.", groceryItem.Id);
         return MapToGroceryResponse(groceryItem);
     }
 
     public async Task<List<GroceryItemResponse>> GetAllAsync()
     {
-        var groceryItems = await _context.GroceryItems.ToListAsync();
+        var groceryItems = await _context.GroceryItems
+            .AsNoTracking()
+            .ToListAsync();
 
         return groceryItems.Select(MapToGroceryResponse).ToList();
     }
@@ -59,17 +61,25 @@ public class GroceryService : IGroceryService
         if (groceryItem is null)
             return null;
 
-        _logger.LogInformation("Product with ID: {id} retrieved.", groceryItem.Id);
+        _logger.LogInformation("Grocery item with ID: {id} retrieved.", groceryItem.Id);
         return MapToGroceryResponse(groceryItem);
     }
 
-    public async Task<GroceryItemResponse> UpdateAsync(GroceryItemUpdateRequest? updateRequest)
+    public async Task<GroceryItemResponse?> UpdateAsync(GroceryItemUpdateRequest? updateRequest)
     {
         ArgumentNullException.ThrowIfNull(updateRequest);
 
-        var groceryItem = MapToGroceryItem(updateRequest);
+        var existing = await _context.GroceryItems.FindAsync(updateRequest.Id);
 
-        _context.GroceryItems.Update(groceryItem);
+        if (existing is null)
+            return null;
+
+        existing.Name = updateRequest.Name;
+        existing.Quantity = updateRequest.Quantity;
+        existing.DateAdded = updateRequest.DateAdded;
+        existing.IsPurchased = updateRequest.IsPurchased;
+
+        _context.GroceryItems.Update(existing);
 
         try
         {
@@ -77,17 +87,17 @@ public class GroceryService : IGroceryService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency conflict while adding category.");
-            return MapToGroceryResponse(groceryItem);
+            _logger.LogWarning(ex, "Concurrency conflict while updating grocery item.");
+            return MapToGroceryResponse(existing);
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database update failed while adding category.");
-            return MapToGroceryResponse(groceryItem);
+            _logger.LogError(ex, "Database update failed while updating grocery item.");
+            return MapToGroceryResponse(existing);
         }
 
-        _logger.LogInformation("Product with ID: {id} updated.", groceryItem.Id);
-        return MapToGroceryResponse(groceryItem);
+        _logger.LogInformation("Grocery item with ID: {id} updated.", existing.Id);
+        return MapToGroceryResponse(existing);
     }
 
     public async Task<bool> DeleteAsync(int id)
@@ -105,16 +115,16 @@ public class GroceryService : IGroceryService
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogWarning(ex, "Concurrency conflict while adding category.");
+            _logger.LogWarning(ex, "Concurrency conflict while adding grocery item.");
             return false;
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Database update failed while adding category.");
+            _logger.LogError(ex, "Database update failed while adding grocery item.");
             return false;
         }
 
-        _logger.LogInformation("Product with ID: {id} deleted.", groceryItem.Id);
+        _logger.LogInformation("Grocery item with ID: {id} deleted.", groceryItem.Id);
         return true;
     }
 
@@ -122,18 +132,6 @@ public class GroceryService : IGroceryService
     {
         return new GroceryItem
         {
-            Name = request.Name,
-            Quantity = request.Quantity,
-            DateAdded = request.DateAdded,
-            IsPurchased = request.IsPurchased
-        };
-    }
-
-    private static GroceryItem MapToGroceryItem(GroceryItemUpdateRequest request)
-    {
-        return new GroceryItem
-        {
-            Id = request.Id,
             Name = request.Name,
             Quantity = request.Quantity,
             DateAdded = request.DateAdded,
